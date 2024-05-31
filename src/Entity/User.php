@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\Api\Action\GetUserMe;
 use App\Dto\UserMeResetPasswordDto;
 use App\Repository\UserRepository;
 use App\State\UserMeResetPasswordStateProcessor;
@@ -31,10 +32,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new GetCollection(),
-        new Get(
+        new GetCollection(
             uriTemplate: '/users/me',
             status: 200,
             normalizationContext: ['groups' => 'user.me'],
+            output: User::class,
+            name: 'get_me',
             provider: UserMeStateProvider::class,
         ),
         new Get(),

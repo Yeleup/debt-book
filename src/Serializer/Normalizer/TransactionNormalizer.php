@@ -4,21 +4,18 @@ namespace App\Serializer\Normalizer;
 
 use App\Service\DateFormatter;
 use App\Service\MoneyFormatter;
-use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class TransactionNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
+class TransactionNormalizer implements NormalizerInterface
 {
-    private $normalizer;
-    private $moneyFormatter;
-    private $dateFormatter;
-
-    public function __construct(ObjectNormalizer $normalizer, MoneyFormatter $moneyFormatter, DateFormatter $dateFormatter)
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private ObjectNormalizer $normalizer,
+        private MoneyFormatter $moneyFormatter,
+        private DateFormatter $dateFormatter)
     {
-        $this->normalizer = $normalizer;
-        $this->moneyFormatter = $moneyFormatter;
-        $this->dateFormatter = $dateFormatter;
     }
 
     public function normalize($object, string $format = null, array $context = []): array
@@ -34,8 +31,10 @@ class TransactionNormalizer implements NormalizerInterface, CacheableSupportsMet
         return $data instanceof \App\Entity\Transaction;
     }
 
-    public function hasCacheableSupportsMethod(): bool
+    public function getSupportedTypes(?string $format): array
     {
-        return true;
+        return [
+            \App\Entity\Transaction::class => true,
+        ];
     }
 }

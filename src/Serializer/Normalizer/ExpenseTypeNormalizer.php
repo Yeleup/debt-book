@@ -17,7 +17,6 @@ class ExpenseTypeNormalizer implements NormalizerInterface
 
     public function normalize($object, string $format = null, array $context = []): array
     {
-        dd('MAGZHAN');
         $data = $this->normalizer->normalize($object, $format, $context);
 
         $parent = $object->getParent();
