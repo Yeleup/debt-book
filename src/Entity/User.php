@@ -28,6 +28,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -56,7 +57,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     processor: UserStateProcessor::class
 )]
 #[Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['username'], message: 'This username is already taken.')]
+#[UniqueEntity(fields: ['phone'], message: 'This phone is already taken.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[Id]
@@ -65,9 +66,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.read', 'expense.read', 'user.expense.read', 'user.me'])]
     private ?int $id = null;
 
-    #[Column(type: 'string', length: 180, unique: true)]
+    #[Column(type: 'string', length: 180, unique: true, nullable: true)]
     #[Groups(['user.read', 'user.write', 'user.me'])]
     private string $username;
+
+    #[ORM\Column(type: 'string', length: 15, unique: true, nullable: true)]
+    #[Groups(['user.read', 'user.write', 'user.me'])]
+    #[Assert\NotBlank]
+    private ?string $phone;
 
     #[Column(type: 'json')]
     #[Groups(['user.read', 'user.write', 'user.me'])]
@@ -192,7 +198,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __toString(): string
     {
-        return $this->username;
+        return $this->phone;
     }
 
     /**
@@ -245,7 +251,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string) $this->phone;
     }
 
     public function getFullName(): ?string
@@ -305,5 +311,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAssociatedExpenses(): Collection
     {
         return $this->associatedExpenses;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): void
+    {
+        $this->phone = $phone;
     }
 }
