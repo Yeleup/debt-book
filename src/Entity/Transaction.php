@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\TransactionRepository;
+use App\State\TransactionReportStateProvider;
 use App\State\TransactionStateProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -39,6 +40,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ["groups" => ["customer.transaction.write"]],
     order: ['createdAt' => 'DESC'],
     paginationItemsPerPage: 10
+)]
+#[GetCollection(
+    uriTemplate: '/transactions/reports',
+    provider: TransactionReportStateProvider::class,
 )]
 #[ApiFilter(DateFilter::class, properties: ["createdAt"])]
 #[ApiFilter(OrderFilter::class, properties: ["createdAt"])]

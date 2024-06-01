@@ -19,15 +19,13 @@ class MarketRepository extends ServiceEntityRepository
         parent::__construct($registry, Market::class);
     }
 
-    /*
-    public function findOneBySomeField($value): ?Market
+    public function findMarketsForUser($user)
     {
         return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
+            ->join('m.users', 'u')
+            ->where('u = :user')
+            ->setParameter('user', $user)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
 }

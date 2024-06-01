@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Market;
 use App\Entity\Type;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,32 +20,24 @@ class TypeRepository extends ServiceEntityRepository
         parent::__construct($registry, Type::class);
     }
 
-    // /**
-    //  * @return Type[] Returns an array of Type objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findTypesWithTransactionsSum(Market $market, $startDate = null, $endDate = null)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('t.id', 't.title', 't.payment_status', 'SUM(transaction.amount) as amount')
+            ->join('t.transactions', 'transaction')
+            ->join('transaction.customer', 'customer')
+            ->join('customer.market', 'market')
+            ->where('market = :market')
+            ->setParameter('market', $market);
 
-    /*
-    public function findOneBySomeField($value): ?Type
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if ($startDate) {
+            $qb->andWhere('transaction.createdAt > :startDate')->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $qb->andWhere('transaction.createdAt < :endDate')->setParameter('endDate', $endDate);
+        }
+
+        return $qb->groupBy('t.id')->getQuery()->getResult();
     }
-    */
 }

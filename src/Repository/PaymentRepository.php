@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Market;
 use App\Entity\Payment;
+use App\Entity\Type;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,32 +21,27 @@ class PaymentRepository extends ServiceEntityRepository
         parent::__construct($registry, Payment::class);
     }
 
-    // /**
-    //  * @return Payment[] Returns an array of Payment objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findPaymentsWithTransactionsSum(Type $type, Market $market, $startDate, $endDate)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $qb = $this->createQueryBuilder('p');
+        $qb->select('p.id', 'p.title', 'SUM(transaction.amount) as amount')
+            ->join('p.transactions', 'transaction')
+            ->join('transaction.type', 'type')
+            ->join('transaction.customer', 'customer')
+            ->join('customer.market', 'market')
+            ->where('type = :type')
+            ->andWhere('market = :market')
+            ->setParameter('type', $type)
+            ->setParameter('market', $market);
 
-    /*
-    public function findOneBySomeField($value): ?Payment
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if ($startDate) {
+            $qb->andWhere('transaction.createdAt > :startDate')->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $qb->andWhere('transaction.createdAt < :endDate')->setParameter('endDate', $endDate);
+        }
+
+        return $qb->groupBy('p.id')->getQuery()->getResult();
     }
-    */
 }
