@@ -57,7 +57,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: UserStateProcessor::class
 )]
 #[Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['phone'], message: 'This phone is already taken.')]
+#[UniqueEntity(fields: ['username'], message: 'This username is already taken.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[Id]
@@ -69,11 +69,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Column(type: 'string', length: 180, unique: true, nullable: true)]
     #[Groups(['user.read', 'user.write', 'user.me'])]
     private string $username;
-
-    #[ORM\Column(type: 'string', length: 15, unique: true, nullable: true)]
-    #[Groups(['user.read', 'user.write', 'user.me'])]
-    #[Assert\NotBlank]
-    private ?string $phone;
 
     #[Column(type: 'json')]
     #[Groups(['user.read', 'user.write', 'user.me'])]
@@ -198,7 +193,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __toString(): string
     {
-        return $this->phone;
+        return $this->username;
     }
 
     /**
@@ -251,7 +246,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->phone;
+        return (string) $this->username;
     }
 
     public function getFullName(): ?string
@@ -311,15 +306,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAssociatedExpenses(): Collection
     {
         return $this->associatedExpenses;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): void
-    {
-        $this->phone = $phone;
     }
 }
