@@ -4,19 +4,33 @@ namespace App\EventListener;
 
 use App\Entity\Customer;
 use App\Entity\Expense;
+use App\Entity\Organization;
 use App\Entity\Transaction;
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 
-class EntityLifecycleListener implements EventSubscriber
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::postPersist)]
+#[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::postRemove)]
+class EntityLifecycleListener
 {
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+    }
+
+    public function prePersist(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+
+        if ($entity instanceof Organization) {
+            $this->entityManager->getRepository(Organization::class)->generateUniqueCode($entity);
+        }
     }
 
     public function postPersist(LifecycleEventArgs $args): void
@@ -62,17 +76,5 @@ class EntityLifecycleListener implements EventSubscriber
             $user = $entity->getUser();
             $this->entityManager->getRepository(Expense::class)->updateUserExpenseTotal($user);
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postPersist,
-            Events::postUpdate,
-            Events::postRemove,
-        ];
     }
 }

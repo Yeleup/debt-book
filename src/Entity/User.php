@@ -10,7 +10,6 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\Api\Action\GetUserMe;
 use App\Dto\UserMeResetPasswordDto;
 use App\Repository\UserRepository;
 use App\State\UserMeResetPasswordStateProcessor;
@@ -100,12 +99,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.read', 'user.me'])]
     private ?float $expenseTotal = null;
 
+    /**
+     * @var Collection<int, UserOrganization>
+     */
+    #[ORM\OneToMany(targetEntity: UserOrganization::class, mappedBy: 'user')]
+    private Collection $userOrganizations;
+
     public function __construct()
     {
         $this->markets = new ArrayCollection();
         $this->payments = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->associatedExpenses = new ArrayCollection();
+        $this->userOrganizations = new ArrayCollection();
     }
 
     public function getPlainPassword(): ?string
@@ -306,5 +312,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAssociatedExpenses(): Collection
     {
         return $this->associatedExpenses;
+    }
+
+    /**
+     * @return Collection<int, UserOrganization>
+     */
+    public function getUserOrganizations(): Collection
+    {
+        return $this->userOrganizations;
+    }
+
+    public function addUserOrganization(UserOrganization $userOrganization): static
+    {
+        if (!$this->userOrganizations->contains($userOrganization)) {
+            $this->userOrganizations->add($userOrganization);
+            $userOrganization->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserOrganization(UserOrganization $userOrganization): static
+    {
+        if ($this->userOrganizations->removeElement($userOrganization)) {
+            // set the owning side to null (unless already changed)
+            if ($userOrganization->getUser() === $this) {
+                $userOrganization->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
