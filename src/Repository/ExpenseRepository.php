@@ -45,6 +45,7 @@ class ExpenseRepository extends ServiceEntityRepository
 
     public function updateUserExpenseTotal(User $user): void
     {
+        $entityManager = $this->getEntityManager();
         $totalExpenses = $this->createQueryBuilder('e')
             ->select('SUM(e.amount) as total')
             ->where('e.user = :user')
@@ -53,8 +54,8 @@ class ExpenseRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
 
         $user->setExpenseTotal($totalExpenses);
-        $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush();
+        $entityManager->persist($user);
+        $entityManager->flush();
     }
 
     public function sumByExpenseTypeAndDateRange(ExpenseType $expenseType, ?string $startDate, ?string $endDate): ?float
@@ -72,29 +73,4 @@ class ExpenseRepository extends ServiceEntityRepository
         }
         return $qb->getQuery()->getSingleScalarResult();
     }
-
-//    /**
-//     * @return Expense[] Returns an array of Expense objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Expense
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

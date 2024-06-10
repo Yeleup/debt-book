@@ -24,42 +24,11 @@ class CustomerRepository extends ServiceEntityRepository
 
     public function updateCustomerTotalAndLastTransaction(Customer $customer): void
     {
-        // Assuming you have a sumAmountByCustomer method in your Transaction repository
-        $total = $this->_em->getRepository(Transaction::class)->sumAmountByCustomer($customer);
-
+        $entityManager = $this->getEntityManager();
+        $total = $entityManager->getRepository(Transaction::class)->sumAmountByCustomer($customer);
         $customer->setTotal($total);
         $customer->setLastTransaction(new \DateTime('now'));
-
-        $this->_em->persist($customer);
-        $this->_em->flush();
+        $entityManager->persist($customer);
+        $entityManager->flush();
     }
-
-    // /**
-    //  * @return Customer[] Returns an array of Customer objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Customer
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

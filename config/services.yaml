@@ -23,10 +23,6 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\EventListener\EntityLifecycleListener:
-        tags:
-            - { name: doctrine.event_subscriber }
-
     App\Command\DatabaseBackupCommand:
         arguments:
             $container: '@service_container'
@@ -71,6 +67,13 @@ services:
         tags: [ 'api_platform.state_provider' ]
 
     App\State\ExpenseStateProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
+            $security: '@security.helper'
+        tags: [ 'api_platform.state_processor' ]
+
+    App\State\OrganizationStateProcessor:
         arguments:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
             $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
