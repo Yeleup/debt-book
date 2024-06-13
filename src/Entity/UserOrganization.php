@@ -52,7 +52,7 @@ class UserOrganization
 
     #[ORM\ManyToOne(inversedBy: 'userOrganizations')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['user_organization.read', 'user_organization.write'])]
+    #[Groups(['user_organization.read', 'user_organization.write', 'user.me'])]
     private ?Organization $organization = null;
 
     #[ORM\Column(length: 50)]

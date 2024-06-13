@@ -33,11 +33,11 @@ class Organization
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['organization.read'])]
+    #[Groups(['organization.read', 'user.me'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['organization.read', 'organization.write'])]
+    #[Groups(['organization.read', 'organization.write', 'user.me'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 6, nullable: true)]

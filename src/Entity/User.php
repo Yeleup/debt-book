@@ -103,6 +103,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, UserOrganization>
      */
     #[ORM\OneToMany(targetEntity: UserOrganization::class, mappedBy: 'user')]
+    #[Groups(['user.read', 'user.me'])]
     private Collection $userOrganizations;
 
     public function __construct()
