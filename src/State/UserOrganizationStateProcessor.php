@@ -4,12 +4,10 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Organization;
 use App\Entity\UserOrganization;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class OrganizationStateProcessor implements ProcessorInterface
+class UserOrganizationStateProcessor implements ProcessorInterface
 {
     public function __construct(
         protected ProcessorInterface $persistProcessor,
@@ -20,16 +18,15 @@ class OrganizationStateProcessor implements ProcessorInterface
     }
 
     /**
-     * @param Organization $data
+     * @param UserOrganization $data
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        $userOrganization = new UserOrganization();
-        $userOrganization->setUser($this->security->getUser());
-        $userOrganization->setOrganization($data);
-        $userOrganization->setRole(UserOrganization::ROLE_OWNER);
-        $userOrganization->setStatus(true);
-        $data->addUserOrganization($userOrganization);
+        $data->setUser($this->security->getUser());
+        $data->setRole(UserOrganization::ROLE_MEMBER);
+        $data->setStatus(false);
+
+
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

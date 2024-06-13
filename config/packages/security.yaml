@@ -21,8 +21,7 @@ security:
             pattern: ^/api/
             stateless: true
             provider: app_user_provider
-            jwt:
-                authenticator: app.jwt_google_authenticator
+            jwt: ~
         main:
             lazy: true
             provider: app_user_provider
