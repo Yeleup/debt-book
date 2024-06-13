@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -23,6 +25,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     processor: OrganizationStateProcessor::class
 )]
 #[ORM\HasLifecycleCallbacks]
+#[ApiFilter(SearchFilter::class, properties: ['code' => 'exact'])]
 class Organization
 {
     use Traits\TimestampableTrait;
