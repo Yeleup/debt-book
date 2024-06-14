@@ -18,6 +18,13 @@ class MarketStateProcessor implements ProcessorInterface
     {
     }
 
+    /**
+     * @param $data
+     * @param Operation $operation
+     * @param array $uriVariables
+     * @param array $context
+     * @return mixed
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($operation instanceof DeleteOperationInterface) {

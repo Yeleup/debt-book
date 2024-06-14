@@ -2,7 +2,10 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\DeleteOperationInterface;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Organization;
 use App\Entity\UserOrganization;
@@ -24,12 +27,16 @@ class OrganizationStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        $userOrganization = new UserOrganization();
-        $userOrganization->setUser($this->security->getUser());
-        $userOrganization->setOrganization($data);
-        $userOrganization->setRole(UserOrganization::ROLE_OWNER);
-        $userOrganization->setStatus(true);
-        $data->addUserOrganization($userOrganization);
+        if ($operation instanceof DeleteOperationInterface) {
+            return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
+        } elseif ($operation instanceof Post) {
+            $userOrganization = new UserOrganization();
+            $userOrganization->setUser($this->security->getUser());
+            $userOrganization->setOrganization($data);
+            $userOrganization->setRole(UserOrganization::ROLE_OWNER);
+            $userOrganization->setStatus(true);
+            $data->addUserOrganization($userOrganization);
+        }
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

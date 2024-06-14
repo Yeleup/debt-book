@@ -23,10 +23,8 @@ class UserOrganizationStateProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         $data->setUser($this->security->getUser());
-        $data->setRole(UserOrganization::ROLE_MEMBER);
+        $data->setRole(UserOrganization::ROLE_EMPLOYEE);
         $data->setStatus(false);
-
-
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

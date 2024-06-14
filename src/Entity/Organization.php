@@ -5,18 +5,25 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\OrganizationRepository;
 use App\State\OrganizationStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OneToMany;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 #[ApiResource(
     operations: [
+        new Get(),
+        new Patch(),
+        new Delete(),
         new Post(),
         new GetCollection()
     ],
@@ -50,9 +57,16 @@ class Organization
     #[ORM\OneToMany(targetEntity: UserOrganization::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
     private Collection $userOrganizations;
 
+    /**
+     * @var Collection<int, Market>
+     */
+    #[ORM\OneToMany(targetEntity: Market::class, mappedBy: 'organization', cascade: ['persist'])]
+    private Collection $markets;
+
     public function __construct()
     {
         $this->userOrganizations = new ArrayCollection();
+        $this->markets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,6 +122,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($userOrganization->getOrganization() === $this) {
                 $userOrganization->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Market>
+     */
+    public function getMarkets(): Collection
+    {
+        return $this->markets;
+    }
+
+    public function addMarket(Market $market): static
+    {
+        if (!$this->markets->contains($market)) {
+            $this->markets->add($market);
+            $market->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMarket(Market $market): static
+    {
+        if ($this->markets->removeElement($market)) {
+            // set the owning side to null (unless already changed)
+            if ($market->getOrganization() === $this) {
+                $market->setOrganization(null);
             }
         }
 

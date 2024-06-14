@@ -37,7 +37,7 @@ class UserOrganization
 {
     const ROLE_OWNER = 'owner';
     const ROLE_ADMIN = 'admin';
-    const ROLE_MEMBER = 'member';
+    const ROLE_EMPLOYEE = 'employee';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

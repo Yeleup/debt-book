@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(),
         new GetCollection(
             uriTemplate: '/users/me',
             status: 200,
@@ -55,6 +54,22 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ["groups" => ["user.write"]],
     processor: UserStateProcessor::class
 )]
+#[ApiResource(
+    uriTemplate: '/organizations/{organizationId}/users',
+    operations: [
+        new GetCollection(),
+    ],
+    uriVariables: [
+        'organizationId' => new Link(
+            toProperty: 'organization',
+            fromClass: Organization::class
+        )
+    ],
+    normalizationContext: ["groups" => ["user.read"]],
+    denormalizationContext: ["groups" => ["user.write"]],
+    paginationItemsPerPage: 10,
+)]
+
 #[Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'This username is already taken.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
