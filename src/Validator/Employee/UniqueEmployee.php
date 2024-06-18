@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validator\UserOrganization;
+namespace App\Validator\Employee;
 
 use Symfony\Component\Validator\Constraint;
 
@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraint;
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
-class UniqueUserOrganization extends Constraint
+class UniqueEmployee extends Constraint
 {
     /*
      * Any public properties become valid options for the annotation.

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Validator\UserOrganization;
+namespace App\Validator\Employee;
 
-use App\Entity\UserOrganization;
+use App\Entity\Employee;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class UniqueUserOrganizationValidator extends ConstraintValidator
+class UniqueEmployeeValidator extends ConstraintValidator
 {
     private EntityManagerInterface $entityManager;
     private Security $security;
@@ -21,9 +21,9 @@ class UniqueUserOrganizationValidator extends ConstraintValidator
 
     public function validate(mixed $value, Constraint $constraint): void
     {
-        /* @var UniqueUserOrganization $constraint */
+        /* @var UniqueEmployee $constraint */
 
-        if (!$value instanceof UserOrganization) {
+        if (!$value instanceof Employee) {
             return;
         }
 
@@ -32,7 +32,7 @@ class UniqueUserOrganizationValidator extends ConstraintValidator
             return;
         }
 
-        $existingRequest = $this->entityManager->getRepository(UserOrganization::class)->findOneBy([
+        $existingRequest = $this->entityManager->getRepository(Employee::class)->findOneBy([
             'user' => $user,
             'organization' => $value->getOrganization(),
         ]);

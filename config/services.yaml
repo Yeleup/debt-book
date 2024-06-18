@@ -80,7 +80,7 @@ services:
             $security: '@security.helper'
         tags: [ 'api_platform.state_processor' ]
 
-    App\State\UserOrganizationStateProcessor:
+    App\State\EmployeeStateProcessor:
         arguments:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
             $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'

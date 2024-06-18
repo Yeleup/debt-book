@@ -115,11 +115,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?float $expenseTotal = null;
 
     /**
-     * @var Collection<int, UserOrganization>
+     * @var Collection<int, Employee>
      */
-    #[ORM\OneToMany(targetEntity: UserOrganization::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Employee::class, mappedBy: 'user')]
     #[Groups(['user.read', 'user.me'])]
-    private Collection $userOrganizations;
+    private Collection $employees;
 
     public function __construct()
     {
@@ -127,7 +127,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->payments = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->associatedExpenses = new ArrayCollection();
-        $this->userOrganizations = new ArrayCollection();
+        $this->employees = new ArrayCollection();
     }
 
     public function getPlainPassword(): ?string
@@ -331,29 +331,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, UserOrganization>
+     * @return Collection<int, Employee>
      */
-    public function getUserOrganizations(): Collection
+    public function getEmployees(): Collection
     {
-        return $this->userOrganizations;
+        return $this->employees;
     }
 
-    public function addUserOrganization(UserOrganization $userOrganization): static
+    public function addEmployee(Employee $employee): static
     {
-        if (!$this->userOrganizations->contains($userOrganization)) {
-            $this->userOrganizations->add($userOrganization);
-            $userOrganization->setUser($this);
+        if (!$this->employees->contains($employee)) {
+            $this->employees->add($employee);
+            $employee->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeUserOrganization(UserOrganization $userOrganization): static
+    public function removeEmployee(Employee $employee): static
     {
-        if ($this->userOrganizations->removeElement($userOrganization)) {
+        if ($this->employees->removeElement($employee)) {
             // set the owning side to null (unless already changed)
-            if ($userOrganization->getUser() === $this) {
-                $userOrganization->setUser(null);
+            if ($employee->getUser() === $this) {
+                $employee->setUser(null);
             }
         }
 

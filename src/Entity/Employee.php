@@ -9,11 +9,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Repository\UserOrganizationRepository;
-use App\State\UserOrganizationStateProcessor;
+use App\Repository\EmployeeRepository;
+use App\State\EmployeeStateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
-use App\Validator\UserOrganization\UniqueUserOrganization;
+use App\Validator\Employee\UniqueEmployee;
 
 #[ApiResource(
     shortName: 'Apply',
@@ -23,7 +23,7 @@ use App\Validator\UserOrganization\UniqueUserOrganization;
     ],
     normalizationContext: ['groups' => ['user_organization.read']],
     denormalizationContext: ['groups' => ['user_organization.write']],
-    processor: UserOrganizationStateProcessor::class
+    processor: EmployeeStateProcessor::class
 )]
 #[ApiResource(
     uriTemplate: '/organizations/{organizationId}/employees',
@@ -43,10 +43,10 @@ use App\Validator\UserOrganization\UniqueUserOrganization;
         new Patch()
     ],
 )]
-#[ORM\Entity(repositoryClass: UserOrganizationRepository::class)]
+#[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 #[ORM\UniqueConstraint(name: 'user_organization_unique', fields: ['user', 'organization'])]
-#[UniqueUserOrganization]
-class UserOrganization
+#[UniqueEmployee]
+class Employee
 {
     const ROLE_OWNER = 'owner';
     const ROLE_ADMIN = 'admin';
@@ -58,12 +58,12 @@ class UserOrganization
     #[Groups(['user_organization.read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userOrganizations')]
+    #[ORM\ManyToOne(inversedBy: 'employees')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['user_organization.read'])]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userOrganizations')]
+    #[ORM\ManyToOne(inversedBy: 'employees')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['user_organization.read', 'user_organization.write', 'user.me'])]
     private ?Organization $organization = null;

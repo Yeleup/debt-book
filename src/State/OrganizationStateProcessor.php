@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Organization;
-use App\Entity\UserOrganization;
+use App\Entity\Employee;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -30,12 +30,12 @@ class OrganizationStateProcessor implements ProcessorInterface
         if ($operation instanceof DeleteOperationInterface) {
             return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         } elseif ($operation instanceof Post) {
-            $userOrganization = new UserOrganization();
-            $userOrganization->setUser($this->security->getUser());
-            $userOrganization->setOrganization($data);
-            $userOrganization->setRole(UserOrganization::ROLE_OWNER);
-            $userOrganization->setStatus(true);
-            $data->addUserOrganization($userOrganization);
+            $employee = new Employee();
+            $employee->setUser($this->security->getUser());
+            $employee->setOrganization($data);
+            $employee->setRole(Employee::ROLE_OWNER);
+            $employee->setStatus(true);
+            $data->addEmployee($employee);
         }
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }

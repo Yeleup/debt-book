@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -34,6 +35,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 #[ORM\HasLifecycleCallbacks]
 #[ApiFilter(SearchFilter::class, properties: ['code' => 'exact'])]
+#[ApiFilter(BooleanFilter::class, properties: ['employees.status'])]
 class Organization
 {
     use Traits\TimestampableTrait;
@@ -53,10 +55,10 @@ class Organization
     private ?string $code = null;
 
     /**
-     * @var Collection<int, UserOrganization>
+     * @var Collection<int, Employee>
      */
-    #[ORM\OneToMany(targetEntity: UserOrganization::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
-    private Collection $userOrganizations;
+    #[ORM\OneToMany(targetEntity: Employee::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $employees;
 
     /**
      * @var Collection<int, Market>
@@ -67,7 +69,7 @@ class Organization
 
     public function __construct()
     {
-        $this->userOrganizations = new ArrayCollection();
+        $this->employees = new ArrayCollection();
         $this->markets = new ArrayCollection();
     }
 
@@ -101,29 +103,29 @@ class Organization
     }
 
     /**
-     * @return Collection<int, UserOrganization>
+     * @return Collection<int, Employee>
      */
-    public function getUserOrganizations(): Collection
+    public function getEmployees(): Collection
     {
-        return $this->userOrganizations;
+        return $this->employees;
     }
 
-    public function addUserOrganization(UserOrganization $userOrganization): static
+    public function addEmployee(Employee $employee): static
     {
-        if (!$this->userOrganizations->contains($userOrganization)) {
-            $this->userOrganizations->add($userOrganization);
-            $userOrganization->setOrganization($this);
+        if (!$this->employees->contains($employee)) {
+            $this->employees->add($employee);
+            $employee->setOrganization($this);
         }
 
         return $this;
     }
 
-    public function removeUserOrganization(UserOrganization $userOrganization): static
+    public function removeEmployee(Employee $employee): static
     {
-        if ($this->userOrganizations->removeElement($userOrganization)) {
+        if ($this->employees->removeElement($employee)) {
             // set the owning side to null (unless already changed)
-            if ($userOrganization->getOrganization() === $this) {
-                $userOrganization->setOrganization(null);
+            if ($employee->getOrganization() === $this) {
+                $employee->setOrganization(null);
             }
         }
 
