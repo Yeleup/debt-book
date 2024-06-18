@@ -22,13 +22,12 @@ class MarketsByUserExtension implements QueryCollectionExtensionInterface
         if ($resourceClass !== Market::class) {
             return;
         }
-
-        $alias = $queryBuilder->getRootAliases()[0];
-
-        if ($this->security->getUser()) {
-            $queryBuilder
-                ->innerJoin(sprintf('%s.users', $alias), 'u', 'WITH', 'u = :user')
-                ->setParameter('user', $this->security->getUser());
-        }
+//        $alias = $queryBuilder->getRootAliases()[0];
+//
+//        if ($this->security->getUser()) {
+//            $queryBuilder
+//                ->innerJoin(sprintf('%s.users', $alias), 'u', 'WITH', 'u = :user')
+//                ->setParameter('user', $this->security->getUser());
+//        }
     }
 }

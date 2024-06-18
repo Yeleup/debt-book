@@ -11,7 +11,10 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\EmployeeRepository;
 use App\State\EmployeeStateProcessor;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Validator\Employee\UniqueEmployee;
 
@@ -76,6 +79,17 @@ class Employee
     #[Groups(['user_organization.read'])]
     private ?bool $status = null;
 
+    /**
+     * @var Collection<int, Market>
+     */
+    #[ORM\ManyToMany(targetEntity: Market::class, inversedBy: 'employees')]
+    private Collection $markets;
+
+    public function __construct()
+    {
+        $this->markets = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -125,6 +139,30 @@ class Employee
     public function setStatus(bool $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Market>
+     */
+    public function getMarkets(): Collection
+    {
+        return $this->markets;
+    }
+
+    public function addMarket(Market $market): static
+    {
+        if (!$this->markets->contains($market)) {
+            $this->markets->add($market);
+        }
+
+        return $this;
+    }
+
+    public function removeMarket(Market $market): static
+    {
+        $this->markets->removeElement($market);
 
         return $this;
     }

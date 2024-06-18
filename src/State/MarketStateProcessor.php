@@ -5,7 +5,7 @@ namespace App\State;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\User;
+use App\Entity\Market;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class MarketStateProcessor implements ProcessorInterface
@@ -19,20 +19,17 @@ class MarketStateProcessor implements ProcessorInterface
     }
 
     /**
-     * @param $data
+     * @param Market $data
      * @param Operation $operation
      * @param array $uriVariables
      * @param array $context
      * @return mixed
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         if ($operation instanceof DeleteOperationInterface) {
             return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         }
-        /** @var User $user */
-        $user = $this->security->getUser();
-        $user->addMarket($data);
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

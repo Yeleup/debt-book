@@ -92,10 +92,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.write'])]
     private string $password;
 
-    #[ManyToMany(targetEntity: Market::class, inversedBy: 'users', cascade: ['persist'])]
-    #[Groups(['user.read', 'user.write', 'user.me', 'user_organization.read'])]
-    private Collection $markets;
-
     #[ManyToMany(targetEntity: Payment::class, inversedBy: 'users')]
     private Collection $payments;
 
@@ -122,6 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $employees;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user.read', 'user.me', 'user_organization.read'])]
     private ?string $image = null;
 
     public function __construct()
@@ -219,30 +216,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->username;
-    }
-
-    /**
-     * @return Collection|Market[]
-     */
-    public function getMarkets(): Collection
-    {
-        return $this->markets;
-    }
-
-    public function addMarket(Market $market): self
-    {
-        if (!$this->markets->contains($market)) {
-            $this->markets[] = $market;
-        }
-
-        return $this;
-    }
-
-    public function removeMarket(Market $market): self
-    {
-        $this->markets->removeElement($market);
-
-        return $this;
     }
 
     /**

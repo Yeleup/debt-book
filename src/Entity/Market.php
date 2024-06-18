@@ -27,7 +27,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(),
-        new Post(),
         new Patch(),
         new Delete(),
     ],
@@ -40,6 +39,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/organizations/{organizationId}/markets',
     operations: [
         new GetCollection(),
+        new Post(
+            uriTemplate: '/organizations/{organizationId}/markets',
+            provider: CreateProvider::class,
+        ),
     ],
     uriVariables: [
         'organizationId' => new Link(
@@ -68,17 +71,20 @@ class Market
     #[OneToMany(targetEntity: Customer::class, mappedBy: 'market')]
     private Collection $customers;
 
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'markets')]
-    private Collection $users;
-
     #[ManyToOne(targetEntity: Organization::class, inversedBy: 'markets')]
-    #[Groups(['market.read', 'market.write', 'user.me'])]
+    #[Groups(['market.read', 'user.me'])]
     private ?Organization $organization = null;
+
+    /**
+     * @var Collection<int, Employee>
+     */
+    #[ManyToMany(targetEntity: Employee::class, mappedBy: 'markets')]
+    private Collection $employees;
 
     public function __construct()
     {
         $this->customers = new ArrayCollection();
-        $this->users = new ArrayCollection();
+        $this->employees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -134,30 +140,6 @@ class Market
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        $this->users->removeElement($user);
-
-        return $this;
-    }
-
     public function getOrganization(): ?Organization
     {
         return $this->organization;
@@ -166,6 +148,33 @@ class Market
     public function setOrganization(?Organization $organization): static
     {
         $this->organization = $organization;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Employee>
+     */
+    public function getEmployees(): Collection
+    {
+        return $this->employees;
+    }
+
+    public function addEmployee(Employee $employee): static
+    {
+        if (!$this->employees->contains($employee)) {
+            $this->employees->add($employee);
+            $employee->addMarket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmployee(Employee $employee): static
+    {
+        if ($this->employees->removeElement($employee)) {
+            $employee->removeMarket($this);
+        }
 
         return $this;
     }
