@@ -67,10 +67,18 @@ class Organization
     #[Link(toProperty: 'organization')]
     private Collection $markets;
 
+    /**
+     * @var Collection<int, Payment>
+     */
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
+    #[Link(toProperty: 'organization')]
+    private Collection $payments;
+
     public function __construct()
     {
         $this->employees = new ArrayCollection();
         $this->markets = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -156,6 +164,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($market->getOrganization() === $this) {
                 $market->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Payment>
+     */
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): static
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): static
+    {
+        if ($this->payments->removeElement($payment)) {
+            // set the owning side to null (unless already changed)
+            if ($payment->getOrganization() === $this) {
+                $payment->setOrganization(null);
             }
         }
 

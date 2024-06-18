@@ -3,8 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\State\CreateProvider;
 use App\Repository\PaymentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,13 +17,39 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
+    operations: [
+        new Get(),
+        new Patch(),
+        new Delete(),
+    ],
     normalizationContext: ['groups' => ['payment.read']],
-    paginationEnabled: false
+    denormalizationContext: ["groups" => ['payment.write']],
+)]
+
+#[ApiResource(
+    uriTemplate: '/organizations/{organizationId}/payments',
+    operations: [
+        new GetCollection(),
+        new Post(
+            uriTemplate: '/organizations/{organizationId}/payments',
+            provider: CreateProvider::class,
+        ),
+    ],
+    uriVariables: [
+        'organizationId' => new Link(
+            toProperty: 'organization',
+            fromClass: Organization::class
+        )
+    ],
+    normalizationContext: ["groups" => ['payment.read']],
+    denormalizationContext: ["groups" => ['payment.write']],
 )]
 #[Entity(repositoryClass: PaymentRepository::class)]
 class Payment
@@ -30,19 +61,19 @@ class Payment
     private ?int $id = null;
 
     #[Column(type: 'string', length: 255)]
-    #[Groups(['payment.read', 'transaction.read', 'customer.transaction.read'])]
+    #[Groups(['payment.read', 'payment.write', 'transaction.read', 'customer.transaction.read'])]
     private ?string $title = null;
 
-    #[OneToMany(mappedBy: 'payment', targetEntity: Transaction::class)]
+    #[OneToMany(targetEntity: Transaction::class, mappedBy: 'payment')]
     private Collection $transactions;
 
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'payments')]
-    private Collection $users;
+    #[ManyToOne(inversedBy: 'payments')]
+    #[JoinColumn(nullable: false)]
+    private ?Organization $organization = null;
 
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,33 +125,17 @@ class Payment
 
     public function __toString()
     {
-        // TODO: Implement __toString() method.
         return $this->title;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
+    public function getOrganization(): ?Organization
     {
-        return $this->users;
+        return $this->organization;
     }
 
-    public function addUser(User $user): self
+    public function setOrganization(?Organization $organization): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->addPayment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->removeElement($user)) {
-            $user->removePayment($this);
-        }
+        $this->organization = $organization;
 
         return $this;
     }

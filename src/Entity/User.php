@@ -92,9 +92,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.write'])]
     private string $password;
 
-    #[ManyToMany(targetEntity: Payment::class, inversedBy: 'users')]
-    private Collection $payments;
-
     #[Column(name: 'full_name', type: 'string', length: 180, nullable: true)]
     #[Groups(['transaction.read', 'expense.read', 'user.expense.read', 'user.read', 'user.write', 'user.me', 'user_organization.read'])]
     private ?string $fullName = null;
@@ -123,8 +120,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->markets = new ArrayCollection();
-        $this->payments = new ArrayCollection();
         $this->expenses = new ArrayCollection();
         $this->associatedExpenses = new ArrayCollection();
         $this->employees = new ArrayCollection();
@@ -216,30 +211,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->username;
-    }
-
-    /**
-     * @return Collection|Payment[]
-     */
-    public function getPayments(): Collection
-    {
-        return $this->payments;
-    }
-
-    public function addPayment(Payment $payment): self
-    {
-        if (!$this->payments->contains($payment)) {
-            $this->payments[] = $payment;
-        }
-
-        return $this;
-    }
-
-    public function removePayment(Payment $payment): self
-    {
-        $this->payments->removeElement($payment);
-
-        return $this;
     }
 
     public function getUserIdentifier(): string
