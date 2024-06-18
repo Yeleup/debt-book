@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\OrganizationRepository;
@@ -61,6 +62,7 @@ class Organization
      * @var Collection<int, Market>
      */
     #[ORM\OneToMany(targetEntity: Market::class, mappedBy: 'organization', cascade: ['persist'])]
+    #[Link(toProperty: 'organization')]
     private Collection $markets;
 
     public function __construct()

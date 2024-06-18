@@ -77,11 +77,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Id]
     #[GeneratedValue]
     #[Column(type: 'integer')]
-    #[Groups(['user.read', 'expense.read', 'user.expense.read', 'user.me'])]
+    #[Groups(['user.read', 'expense.read', 'user.expense.read', 'user.me', 'user_organization.read'])]
     private ?int $id = null;
 
     #[Column(type: 'string', length: 180, unique: true, nullable: true)]
-    #[Groups(['user.read', 'user.write', 'user.me'])]
+    #[Groups(['user.read', 'user.write', 'user.me', 'user_organization.read'])]
     private string $username;
 
     #[Column(type: 'json')]
@@ -93,14 +93,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[ManyToMany(targetEntity: Market::class, inversedBy: 'users', cascade: ['persist'])]
-    #[Groups(['user.read', 'user.write', 'user.me'])]
+    #[Groups(['user.read', 'user.write', 'user.me', 'user_organization.read'])]
     private Collection $markets;
 
     #[ManyToMany(targetEntity: Payment::class, inversedBy: 'users')]
     private Collection $payments;
 
     #[Column(name: 'full_name', type: 'string', length: 180, nullable: true)]
-    #[Groups(['transaction.read', 'expense.read', 'user.expense.read', 'user.read', 'user.write', 'user.me'])]
+    #[Groups(['transaction.read', 'expense.read', 'user.expense.read', 'user.read', 'user.write', 'user.me', 'user_organization.read'])]
     private ?string $fullName = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Expense::class, cascade: ['remove'])]
@@ -111,7 +111,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $associatedExpenses;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['user.read', 'user.me'])]
+    #[Groups(['user.read', 'user.me', 'user_organization.read'])]
     private ?float $expenseTotal = null;
 
     /**

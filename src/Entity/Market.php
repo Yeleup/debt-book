@@ -65,13 +65,13 @@ class Market
     #[Groups(['market.read', 'market.write', 'user.me'])]
     private ?string $title = null;
 
-    #[OneToMany(mappedBy: 'market', targetEntity: Customer::class)]
+    #[OneToMany(targetEntity: Customer::class, mappedBy: 'market')]
     private Collection $customers;
 
     #[ManyToMany(targetEntity: User::class, mappedBy: 'markets')]
     private Collection $users;
 
-    #[ManyToOne(inversedBy: 'markets')]
+    #[ManyToOne(targetEntity: Organization::class, inversedBy: 'markets')]
     #[Groups(['market.read', 'market.write', 'user.me'])]
     private ?Organization $organization = null;
 

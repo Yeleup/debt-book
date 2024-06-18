@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\UserOrganizationRepository;
 use App\State\UserOrganizationStateProcessor;
@@ -16,19 +19,29 @@ use App\Validator\UserOrganization\UniqueUserOrganization;
     shortName: 'Apply',
     operations: [
         new Post(),
+        new Delete()
     ],
     normalizationContext: ['groups' => ['user_organization.read']],
     denormalizationContext: ['groups' => ['user_organization.write']],
     processor: UserOrganizationStateProcessor::class
 )]
 #[ApiResource(
-    uriTemplate: '/organizations/{organizationId}/applies',
-    shortName: 'Apply',
+    uriTemplate: '/organizations/{organizationId}/employees',
+    shortName: 'Employee',
     operations: [new GetCollection()],
     uriVariables: [
         'organizationId' => new Link(toProperty: 'organization', fromClass: Organization::class),
     ],
+    normalizationContext: ['groups' => ['user_organization.read']],
     paginationItemsPerPage: 10
+)]
+#[ApiResource(
+    uriTemplate: '/employees/{id}',
+    shortName: 'Employee',
+    operations: [
+        new Get(),
+        new Patch()
+    ],
 )]
 #[ORM\Entity(repositoryClass: UserOrganizationRepository::class)]
 #[ORM\UniqueConstraint(name: 'user_organization_unique', fields: ['user', 'organization'])]

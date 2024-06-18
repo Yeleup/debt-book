@@ -27,8 +27,7 @@ class MarketsByUserExtension implements QueryCollectionExtensionInterface
 
         if ($this->security->getUser()) {
             $queryBuilder
-                ->join(sprintf('%s.users', $alias), 'u')
-                ->where('u = :user')
+                ->innerJoin(sprintf('%s.users', $alias), 'u', 'WITH', 'u = :user')
                 ->setParameter('user', $this->security->getUser());
         }
     }
