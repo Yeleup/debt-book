@@ -57,7 +57,9 @@ class GoogleAuthenticator extends AbstractAuthenticator
             $user = new User();
             $user->setUsername($params['username']);
             $user->setPassword($this->passwordHasher->hashPassword($user, $params['password']));
+            $user->setFullName($params['fullName'] ?? null);
             $user->setRoles(['ROLE_USER']);
+            $user->setImage($params['image'] ?? null);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
