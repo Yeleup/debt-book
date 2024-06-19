@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
@@ -21,6 +22,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 
 #[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Patch(),
+        new Delete(),
+    ],
     normalizationContext: ['groups' => ['customer.read']],
     denormalizationContext: ['groups' => ['customer.write']],
     order: ['place' => 'ASC']
@@ -54,7 +62,7 @@ class Customer
     #[ORM\ManyToOne(targetEntity: Market::class, inversedBy: 'customers')]
     private ?Market $market = null;
 
-    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Transaction::class, cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'customer', cascade: ['remove'])]
     #[Link(toProperty: 'customer')]
     private Collection $transactions;
 
