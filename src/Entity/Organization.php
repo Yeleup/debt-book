@@ -74,11 +74,18 @@ class Organization
     #[Link(toProperty: 'organization')]
     private Collection $payments;
 
+    /**
+     * @var Collection<int, Type>
+     */
+    #[ORM\OneToMany(targetEntity: Type::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $types;
+
     public function __construct()
     {
         $this->employees = new ArrayCollection();
         $this->markets = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->types = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -194,6 +201,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($payment->getOrganization() === $this) {
                 $payment->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Type>
+     */
+    public function getTypes(): Collection
+    {
+        return $this->types;
+    }
+
+    public function addType(Type $type): static
+    {
+        if (!$this->types->contains($type)) {
+            $this->types->add($type);
+            $type->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeType(Type $type): static
+    {
+        if ($this->types->removeElement($type)) {
+            // set the owning side to null (unless already changed)
+            if ($type->getOrganization() === $this) {
+                $type->setOrganization(null);
             }
         }
 

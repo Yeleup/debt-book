@@ -4,8 +4,16 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\State\CreateProvider;
 use App\Repository\TypeRepository;
+use App\State\MarketStateProcessor;
+use App\State\TypeStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,8 +21,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 
 #[ApiResource(
+    operations: [
+        new Get(),
+        new Patch(),
+        new Delete(),
+    ],
     normalizationContext: ['groups' => ['type.read']],
-    paginationEnabled: false
+    denormalizationContext: ['groups' => ['type.write']],
+    paginationEnabled: false,
+    processor: TypeStateProcessor::class
+)]
+#[ApiResource(
+    uriTemplate: '/organizations/{organizationId}/types',
+    operations: [
+        new GetCollection(),
+        new Post(
+            uriTemplate: '/organizations/{organizationId}/types',
+            provider: CreateProvider::class,
+        ),
+    ],
+    uriVariables: [
+        'organizationId' => new Link(
+            toProperty: 'organization',
+            fromClass: Organization::class
+        )
+    ],
+    normalizationContext: ["groups" => ['type.read']],
+    denormalizationContext: ["groups" => ['type.write']],
 )]
 #[ApiFilter(OrderFilter::class, properties: ['sort'])]
 #[ORM\Entity(repositoryClass: TypeRepository::class)]
@@ -27,27 +60,27 @@ class Type
     private $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['type.read', 'transaction.read', 'customer.transaction.read'])]
+    #[Groups(['type.read', 'transaction.read','type.write', 'customer.transaction.read'])]
     private ?string $title = null;
 
-    #[ORM\OneToMany(mappedBy: 'type', targetEntity: Transaction::class)]
-    private $transactions;
-
-    #[ORM\Column(type: 'string', length: 3, nullable: true)]
-    #[Groups(['type.read'])]
-    private ?string $prefix = null;
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'type')]
+    private Collection $transactions;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['type.read'])]
-    private bool $payment_status;
+    #[Groups(['type.read', 'type.write'])]
+    private bool $paymentStatus;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    #[Groups(['type.read'])]
+    #[Groups(['type.read', 'type.write'])]
     private ?int $sort = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['type.read'])]
-    private ?string $color = null;
+    #[ORM\ManyToOne(inversedBy: 'types')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organization $organization = null;
+
+    #[ORM\Column('is_add_amount')]
+    #[Groups(['type.read', 'type.write'])]
+    private ?bool $addAmountToCustomer = null;
 
     public function __construct()
     {
@@ -103,30 +136,17 @@ class Type
 
     public function __toString()
     {
-        // TODO: Implement __toString() method.
         return $this->title;
-    }
-
-    public function getPrefix(): ?string
-    {
-        return $this->prefix;
-    }
-
-    public function setPrefix(?string $prefix): self
-    {
-        $this->prefix = $prefix;
-
-        return $this;
     }
 
     public function getPaymentStatus(): ?bool
     {
-        return $this->payment_status;
+        return $this->paymentStatus;
     }
 
-    public function setPaymentStatus(bool $payment_status): self
+    public function setPaymentStatus(bool $paymentStatus): self
     {
-        $this->payment_status = $payment_status;
+        $this->paymentStatus = $paymentStatus;
 
         return $this;
     }
@@ -143,20 +163,32 @@ class Type
         return $this;
     }
 
-    public function getColor(): ?string
+    public function isPaymentStatus(): ?bool
     {
-        return $this->color;
+        return $this->paymentStatus;
     }
 
-    public function setColor(?string $color): self
+    public function getOrganization(): ?Organization
     {
-        $this->color = $color;
+        return $this->organization;
+    }
+
+    public function setOrganization(?Organization $organization): static
+    {
+        $this->organization = $organization;
 
         return $this;
     }
 
-    public function isPaymentStatus(): ?bool
+    public function isAddAmountToCustomer(): ?bool
     {
-        return $this->payment_status;
+        return $this->addAmountToCustomer;
+    }
+
+    public function setAddAmountToCustomer(bool $addAmountToCustomer): static
+    {
+        $this->addAmountToCustomer = $addAmountToCustomer;
+
+        return $this;
     }
 }

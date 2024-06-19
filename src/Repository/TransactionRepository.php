@@ -37,7 +37,7 @@ class TransactionRepository extends ServiceEntityRepository
             $amount = (float) abs($transaction->getAmount());
 
             // Плюсуем или минусуем, смотря по префиксу
-            if ($transaction->getType()->getPrefix() == '-') {
+            if ($transaction->getType()->isAddAmountToCustomer()) {
                 $amount = -1 * $amount;
                 $transaction->setAmount($amount);
             } else {
