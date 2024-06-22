@@ -68,7 +68,7 @@ class Payment
     private Collection $transactions;
 
     #[ManyToOne(inversedBy: 'payments')]
-    #[JoinColumn(nullable: false)]
+    #[JoinColumn(nullable:false, onDelete: 'CASCADE')]
     private ?Organization $organization = null;
 
     public function __construct()

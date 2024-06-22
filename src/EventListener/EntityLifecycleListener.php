@@ -6,6 +6,9 @@ use App\Entity\Customer;
 use App\Entity\Expense;
 use App\Entity\Organization;
 use App\Entity\Transaction;
+use App\Repository\CustomerRepository;
+use App\Repository\ExpenseRepository;
+use App\Repository\OrganizationRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
@@ -17,11 +20,13 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 #[AsDoctrineListener(Events::postRemove)]
 class EntityLifecycleListener
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(
+        protected EntityManagerInterface $entityManager,
+        protected OrganizationRepository $organizationRepository,
+        protected CustomerRepository $customerRepository,
+        protected ExpenseRepository $expenseRepository
+    )
     {
-        $this->entityManager = $entityManager;
     }
 
     public function prePersist(LifecycleEventArgs $args): void
@@ -29,7 +34,7 @@ class EntityLifecycleListener
         $entity = $args->getObject();
 
         if ($entity instanceof Organization) {
-            $this->entityManager->getRepository(Organization::class)->generateUniqueCode($entity);
+            $this->organizationRepository->generateUniqueCode($entity);
         }
     }
 
@@ -39,12 +44,12 @@ class EntityLifecycleListener
 
         if ($entity instanceof Transaction) {
             $customer = $entity->getCustomer();
-            $this->entityManager->getRepository(Customer::class)->updateCustomerTotalAndLastTransaction($customer);
+            $this->customerRepository->updateCustomerTotalAndLastTransaction($customer);
         }
 
         if ($entity instanceof Expense) {
             $user = $entity->getUser();
-            $this->entityManager->getRepository(Expense::class)->updateUserExpenseTotal($user);
+            $this->expenseRepository->updateUserExpenseTotal($user);
         }
     }
 
@@ -54,12 +59,12 @@ class EntityLifecycleListener
 
         if ($entity instanceof Transaction) {
             $customer = $entity->getCustomer();
-            $this->entityManager->getRepository(Customer::class)->updateCustomerTotalAndLastTransaction($customer);
+            if ($customer) $this->customerRepository->updateCustomerTotalAndLastTransaction($customer);
         }
 
         if ($entity instanceof Expense) {
             $user = $entity->getUser();
-            $this->entityManager->getRepository(Expense::class)->updateUserExpenseTotal($user);
+            $this->expenseRepository->updateUserExpenseTotal($user);
         }
     }
 
@@ -69,12 +74,12 @@ class EntityLifecycleListener
 
         if ($entity instanceof Transaction) {
             $customer = $entity->getCustomer();
-            $this->entityManager->getRepository(Customer::class)->updateCustomerTotalAndLastTransaction($customer);
+            if ($customer) $this->customerRepository->updateCustomerTotalAndLastTransaction($customer);
         }
 
         if ($entity instanceof Expense) {
             $user = $entity->getUser();
-            $this->entityManager->getRepository(Expense::class)->updateUserExpenseTotal($user);
+            if ($user) $this->expenseRepository->updateUserExpenseTotal($user);
         }
     }
 }

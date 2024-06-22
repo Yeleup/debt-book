@@ -72,6 +72,7 @@ class Market
     private Collection $customers;
 
     #[ManyToOne(targetEntity: Organization::class, inversedBy: 'markets')]
+    #[JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['market.read', 'user.me'])]
     private ?Organization $organization = null;
 
@@ -106,7 +107,6 @@ class Market
 
     public function __toString()
     {
-        // TODO: Implement __toString() method.
         return $this->title;
     }
 

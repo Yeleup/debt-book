@@ -20,7 +20,7 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    public function sumAmountByCustomer(Customer $customer)
+    public function sumAmountByCustomer(Customer $customer): float
     {
         $qb = $this->createQueryBuilder('co');
 
@@ -28,7 +28,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->where('co.customer = :customer')
             ->setParameter('customer', $customer)
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleScalarResult() ?? 0;
     }
 
     public function plusOrMinusDependingType(Transaction $transaction): Transaction

@@ -57,27 +57,27 @@ class Organization
     /**
      * @var Collection<int, Employee>
      */
-    #[ORM\OneToMany(targetEntity: Employee::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Employee::class, mappedBy: 'organization', cascade: ['persist', 'remove'])]
     private Collection $employees;
 
     /**
      * @var Collection<int, Market>
      */
-    #[ORM\OneToMany(targetEntity: Market::class, mappedBy: 'organization', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Market::class, mappedBy: 'organization')]
     #[Link(toProperty: 'organization')]
     private Collection $markets;
 
     /**
      * @var Collection<int, Payment>
      */
-    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'organization')]
     #[Link(toProperty: 'organization')]
     private Collection $payments;
 
     /**
      * @var Collection<int, Type>
      */
-    #[ORM\OneToMany(targetEntity: Type::class, mappedBy: 'organization', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Type::class, mappedBy: 'organization')]
     private Collection $types;
 
     public function __construct()

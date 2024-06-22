@@ -5,6 +5,7 @@ namespace App\State;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Entity\Transaction;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -20,6 +21,13 @@ class TransactionStateProcessor implements ProcessorInterface
     {
     }
 
+    /**
+     * @param Transaction $data
+     * @param Operation $operation
+     * @param array $uriVariables
+     * @param array $context
+     * @return mixed
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         if ($operation instanceof DeleteOperationInterface) {
@@ -27,6 +35,7 @@ class TransactionStateProcessor implements ProcessorInterface
         }
         $data = $this->transactionRepository->plusOrMinusDependingType($data);
         $data->setUser($this->security->getUser());
+        $data->setOrganization($data->getCustomer()->getMarket()->getOrganization());
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

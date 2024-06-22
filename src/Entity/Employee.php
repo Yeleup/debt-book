@@ -48,7 +48,7 @@ use App\Validator\Employee\UniqueEmployee;
 )]
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 #[ORM\UniqueConstraint(name: 'user_organization_unique', fields: ['user', 'organization'])]
-#[UniqueEmployee]
+//#[UniqueEmployee]
 class Employee
 {
     const ROLE_OWNER = 'owner';
@@ -63,11 +63,11 @@ class Employee
 
     #[ORM\ManyToOne(inversedBy: 'employees')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['user_organization.read'])]
+    #[Groups(['user_organization.read', 'transaction.read'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'employees')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['user_organization.read', 'user_organization.write', 'user.me'])]
     private ?Organization $organization = null;
 
@@ -83,6 +83,7 @@ class Employee
      * @var Collection<int, Market>
      */
     #[ORM\ManyToMany(targetEntity: Market::class, inversedBy: 'employees')]
+    #[Groups(['user_organization.read'])]
     private Collection $markets;
 
     public function __construct()

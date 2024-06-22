@@ -60,9 +60,10 @@ class Customer
     #[Assert\NotBlank]
     #[Groups(['customer.read', 'customer.write'])]
     #[ORM\ManyToOne(targetEntity: Market::class, inversedBy: 'customers')]
+    #[ORM\JoinColumn(nullable:false, onDelete: 'CASCADE')]
     private ?Market $market = null;
 
-    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'customer', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'customer')]
     #[Link(toProperty: 'customer')]
     private Collection $transactions;
 

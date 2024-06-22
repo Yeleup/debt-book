@@ -75,7 +75,7 @@ class Type
     private ?int $sort = null;
 
     #[ORM\ManyToOne(inversedBy: 'types')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable:false, onDelete: 'CASCADE')]
     private ?Organization $organization = null;
 
     #[ORM\Column('is_add_amount')]

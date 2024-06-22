@@ -73,7 +73,8 @@ class Transaction
 
     #[Groups(['transaction.write', 'transaction.read', 'customer.transaction.read'])]
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'transactions')]
-    private $customer;
+    #[ORM\JoinColumn(nullable:false, onDelete: 'CASCADE')]
+    private ?Customer $customer;
 
     #[ORM\Column(type: 'datetime', nullable: false, name: 'created_at')]
     private \DateTime $createdAt;
@@ -91,6 +92,10 @@ class Transaction
     #[Groups(['transaction.read', 'transaction.write', 'customer.transaction.read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $comment;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organization $organization = null;
 
     public function getId(): ?int
     {
@@ -214,5 +219,17 @@ class Transaction
     public function isConfirmed(): ?bool
     {
         return $this->confirmed;
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?Organization $organization): static
+    {
+        $this->organization = $organization;
+
+        return $this;
     }
 }
