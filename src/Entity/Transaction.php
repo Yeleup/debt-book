@@ -14,7 +14,6 @@ use ApiPlatform\Metadata\Post;
 use App\Repository\TransactionRepository;
 use App\State\TransactionReportStateProvider;
 use App\State\TransactionStateProcessor;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -55,7 +54,7 @@ class Transaction
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['transaction.read', 'customer.transaction.read'])]
-    private $id;
+    private ?int $id = null;
 
     #[Groups(['transaction.read', 'transaction.write', 'customer.transaction.read'])]
     #[ORM\Column(type: 'float', precision: 10, scale: 0)]
@@ -69,29 +68,29 @@ class Transaction
     #[Groups(['transaction.read', 'transaction.write', 'customer.transaction.read'])]
     #[ORM\ManyToOne(targetEntity: Payment::class, inversedBy: 'transactions')]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    private $payment;
+    private ?Payment $payment;
 
     #[Groups(['transaction.write', 'transaction.read', 'customer.transaction.read'])]
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable:false, onDelete: 'CASCADE')]
     private ?Customer $customer;
 
-    #[ORM\Column(type: 'datetime', nullable: false, name: 'created_at')]
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private \DateTime $createdAt;
 
-    #[ORM\Column(type: 'datetime', nullable: true, name: 'updated_at')]
+    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     private ?\DateTime $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[Groups(['transaction.read', 'customer.transaction.read'])]
-    private $user;
+    private ?User $user;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $confirmed;
+    private ?bool $confirmed;
 
     #[Groups(['transaction.read', 'transaction.write', 'customer.transaction.read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $comment;
+    private ?string $comment;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]

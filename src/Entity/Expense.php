@@ -63,7 +63,7 @@ class Expense
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?ExpenseType $expenseType = null;
 
-    #[ORM\Column(type: 'datetime', nullable: false, name: 'created_at')]
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private \DateTime $createdAt;
 
     #[ORM\Column(type: 'datetime', nullable: true, name: 'updated_at')]
