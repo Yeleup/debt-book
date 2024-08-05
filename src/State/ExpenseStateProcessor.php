@@ -35,8 +35,6 @@ class ExpenseStateProcessor implements ProcessorInterface
                 return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
             }
 
-            $data->setUser($currentUser);
-
             if ($operation instanceof Post) {
                 /** @var Employee $employee */
                 $employee = $this->employeeRepository->findOneBy(['user' => $this->security->getUser(), 'organization' => $data->getOrganization()]);

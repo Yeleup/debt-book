@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriVariables: [
         'employeeId' => new Link(toProperty: 'employee', fromClass: Employee::class),
     ],
-    normalizationContext: ['groups' => ['employee.read']],
+    normalizationContext: ['groups' => ['employee:banks']],
 )]
 #[ORM\HasLifecycleCallbacks]
 class Bank
@@ -28,10 +28,11 @@ class Bank
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['bank.read', 'employee:banks'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['bank.read'])]
+    #[Groups(['bank.read', 'employee:banks'])]
     private ?string $reference = null;
 
     #[ManyToOne(targetEntity: Organization::class)]
@@ -45,11 +46,11 @@ class Bank
     private ?Employee $employee = null;
 
     #[ORM\Column]
-    #[Groups(['bank.read'])]
+    #[Groups(['bank.read', 'employee:banks'])]
     private ?float $amount = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['bank.read'])]
+    #[Groups(['bank.read', 'employee:banks'])]
     private ?string $comment = null;
 
     public function getId(): ?int

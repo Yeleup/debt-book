@@ -57,7 +57,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriVariables: [
         'employeeId' => new Link(toProperty: 'employee', fromClass: Employee::class),
     ],
-    normalizationContext: ['groups' => ['employee.read']],
+    normalizationContext: ['groups' => ['employee:expenses']],
 )]
 #[ApiFilter(DateFilter::class, properties: ["createdAt"])]
 #[ApiFilter(OrderFilter::class, properties: ["createdAt"])]
@@ -71,23 +71,23 @@ class Expense
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[ApiProperty(identifier: true)]
-    #[Groups(groups: ['expense.read', 'user.expense.read'])]
+    #[Groups(groups: ['expense.read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::FLOAT, precision: 10, scale: 0)]
-    #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
+    #[Groups(groups: ['expense.read', 'expense.write', 'employee:expenses'])]
     private ?float $amount = null;
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
     private ?Employee $employee = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
+    #[Groups(groups: ['expense.read', 'expense.write', 'employee:expenses'])]
     private ?string $comment = null;
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
+    #[Groups(groups: ['expense.read', 'expense.write', 'employee:expenses'])]
     private ?ExpenseType $expenseType = null;
 
     #[ORM\ManyToOne]

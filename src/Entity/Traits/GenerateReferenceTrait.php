@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait GenerateReferenceTrait
 {
     #[ORM\Column(length: 255)]
-    #[Groups(['transfer.read'])]
+    #[Groups(['employee:transfers', 'employee:banks', 'transfer.read', 'expense.read'])]
     private ?string $reference = null;
 
     public function getReference(): ?string

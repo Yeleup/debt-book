@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriVariables: [
         'employeeId' => new Link(toProperty: 'employee', fromClass: Employee::class),
     ],
-    normalizationContext: ['groups' => ['employee.read']],
+    normalizationContext: ['groups' => ['employee:transfers']],
 )]
 #[ApiResource(
     operations: [
@@ -61,30 +61,30 @@ class Transfer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['transfer.read'])]
+    #[Groups(['transfer.read', 'employee:transfers'])]
     private ?int $id = null;
 
     #[ManyToOne(targetEntity: Organization::class)]
     #[JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['transfer.read', 'employee.read'])]
+    #[Groups(['transfer.read'])]
     private ?Organization $organization = null;
 
     #[ORM\ManyToOne(inversedBy: 'transfers')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['transfer.read', 'employee.read'])]
+    #[Groups(['transfer.read', 'employee:transfers'])]
     private ?Employee $employee = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['transfer.read', 'transfer.write', 'employee.read'])]
+    #[Groups(['transfer.read', 'transfer.write', 'employee:transfers'])]
     private ?Employee $receiverEmployee = null;
 
     #[ORM\Column]
-    #[Groups(['transfer.read', 'transfer.write', 'employee.read'])]
+    #[Groups(['transfer.read', 'transfer.write', 'employee:transfers'])]
     private ?float $amount = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['transfer.read', 'transfer.write', 'employee.read'])]
+    #[Groups(['transfer.read', 'transfer.write', 'employee:transfers'])]
     private ?string $comment = null;
 
     public function getId(): ?int
