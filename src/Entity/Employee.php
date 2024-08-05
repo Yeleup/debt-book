@@ -86,9 +86,27 @@ class Employee
     #[Groups(['user_organization.read'])]
     private Collection $markets;
 
+    /**
+     * @var Collection<int, Transfer>
+     */
+    #[ORM\OneToMany(targetEntity: Transfer::class, mappedBy: 'employee', orphanRemoval: true)]
+    private Collection $transfers;
+
+    /**
+     * @var Collection<int, Bank>
+     */
+    #[ORM\OneToMany(targetEntity: Bank::class, mappedBy: 'employee', orphanRemoval: true)]
+    private Collection $banks;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['user.read', 'user.me', 'user_organization.read'])]
+    private ?float $total = null;
+
     public function __construct()
     {
         $this->markets = new ArrayCollection();
+        $this->transfers = new ArrayCollection();
+        $this->banks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -164,6 +182,78 @@ class Employee
     public function removeMarket(Market $market): static
     {
         $this->markets->removeElement($market);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transfer>
+     */
+    public function getTransfers(): Collection
+    {
+        return $this->transfers;
+    }
+
+    public function addTransfer(Transfer $transfer): static
+    {
+        if (!$this->transfers->contains($transfer)) {
+            $this->transfers->add($transfer);
+            $transfer->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransfer(Transfer $transfer): static
+    {
+        if ($this->transfers->removeElement($transfer)) {
+            // set the owning side to null (unless already changed)
+            if ($transfer->getEmployee() === $this) {
+                $transfer->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Bank>
+     */
+    public function getBanks(): Collection
+    {
+        return $this->banks;
+    }
+
+    public function addBank(Bank $bank): static
+    {
+        if (!$this->banks->contains($bank)) {
+            $this->banks->add($bank);
+            $bank->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBank(Bank $bank): static
+    {
+        if ($this->banks->removeElement($bank)) {
+            // set the owning side to null (unless already changed)
+            if ($bank->getEmployee() === $this) {
+                $bank->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getTotal(): ?float
+    {
+        return $this->total;
+    }
+
+    public function setTotal(?float $total): static
+    {
+        $this->total = $total;
 
         return $this;
     }

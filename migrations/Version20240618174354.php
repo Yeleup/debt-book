@@ -23,7 +23,7 @@ final class Version20240618174354 extends AbstractMigration
         $this->addSql('ALTER TABLE user_payment DROP FOREIGN KEY FK_35259A074C3A3BB');
         $this->addSql('ALTER TABLE user_payment DROP FOREIGN KEY FK_35259A07A76ED395');
         $this->addSql('DROP TABLE user_payment');
-        $this->addSql('ALTER TABLE payment ADD organization_id INT NOT NULL');
+        $this->addSql('ALTER TABLE payment ADD organization_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE payment ADD CONSTRAINT FK_6D28840D32C8A3DE FOREIGN KEY (organization_id) REFERENCES organization (id)');
         $this->addSql('CREATE INDEX IDX_6D28840D32C8A3DE ON payment (organization_id)');
     }
