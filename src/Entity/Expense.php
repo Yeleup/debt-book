@@ -7,10 +7,16 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\State\CreateProvider;
 use App\Repository\ExpenseRepository;
 use App\State\ExpenseStateProcessor;
+use App\State\TransferStateProcessor;
 use App\Validator\User\IsRoleControl;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,26 +24,49 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ExpenseRepository::class)]
 #[ApiResource(
+    operations: [
+        new Get(),
+        new Patch(),
+        new Delete(),
+    ],
     normalizationContext: ["groups" => ["expense.read"]],
     denormalizationContext: ["groups" => ["expense.write"]],
     order: ['createdAt' => 'DESC'],
     processor: ExpenseStateProcessor::class,
 )]
 #[ApiResource(
-    uriTemplate: '/users/{userId}/expenses',
-    operations: [ new GetCollection() ],
-    uriVariables: [
-        'userId' => new Link(toProperty: 'user', fromClass: User::class),
+    operations: [
+        new Post(
+            uriTemplate: '/organizations/{organizationId}/expenses',
+            provider: CreateProvider::class,
+        ),
     ],
-    normalizationContext: ["groups" => ["user.expense.read"]],
-    denormalizationContext: ["groups" => ["user.expense.write"]],
-    order: ['createdAt' => 'DESC'],
+    uriVariables: [
+        'organizationId' => new Link(
+            toProperty: 'organization',
+            fromClass: Organization::class
+        )
+    ],
+    normalizationContext: ["groups" => ['expense.read']],
+    denormalizationContext: ["groups" => ['expense.write']],
+    processor: ExpenseStateProcessor::class,
+)]
+#[ApiResource(
+    uriTemplate: '/employees/{employeeId}/expenses',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'employeeId' => new Link(toProperty: 'employee', fromClass: Employee::class),
+    ],
+    normalizationContext: ['groups' => ['employee.read']],
 )]
 #[ApiFilter(DateFilter::class, properties: ["createdAt"])]
 #[ApiFilter(OrderFilter::class, properties: ["createdAt"])]
 #[ORM\HasLifecycleCallbacks]
 class Expense
 {
+    use Traits\TimestampableTrait;
+    use Traits\GenerateReferenceTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -54,6 +83,9 @@ class Expense
     #[Groups(groups: ['expense.read', 'user.expense.read'])]
     private ?User $user = null;
 
+    #[ORM\ManyToOne(inversedBy: 'expenses')]
+    private ?Employee $employee = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?string $comment = null;
@@ -63,21 +95,12 @@ class Expense
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?ExpenseType $expenseType = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
-    private \DateTime $createdAt;
-
-    #[ORM\Column(type: 'datetime', nullable: true, name: 'updated_at')]
-    private ?\DateTime $updatedAt;
-
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'associatedExpenses')]
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?User $associatedUser = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
-    }
+    #[ORM\ManyToOne]
+    private ?Organization $organization = null;
 
     public function getId(): ?int
     {
@@ -132,30 +155,6 @@ class Expense
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
     public function getAssociatedUser(): ?User
     {
         return $this->associatedUser;
@@ -164,6 +163,30 @@ class Expense
     public function setAssociatedUser(?User $user): self
     {
         $this->associatedUser = $user;
+
+        return $this;
+    }
+
+    public function getEmployee(): ?Employee
+    {
+        return $this->employee;
+    }
+
+    public function setEmployee(?Employee $employee): static
+    {
+        $this->employee = $employee;
+
+        return $this;
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?Organization $organization): static
+    {
+        $this->organization = $organization;
 
         return $this;
     }

@@ -54,14 +54,20 @@ class EntityLifecycleListener
         }
 
         if ($entity instanceof Expense) {
-            $user = $entity->getUser();
-            $this->expenseRepository->updateUserExpenseTotal($user);
+            $bank = new Bank();
+            $bank->setReference($entity->getReference());
+            $bank->setAmount($entity->getAmount());
+            $bank->setEmployee($entity->getEmployee());
+            $bank->setOrganization($entity->getOrganization());
+            $bank->setComment($entity->getComment());
+            $this->entityManager->persist($bank);
+            $this->entityManager->flush();
         }
 
         if ($entity instanceof Transfer) {
             $bank = new Bank();
             $bank->setReference($entity->getReference());
-            $bank->setAmount($entity->getAmount());
+            $bank->setAmount($entity->getAmount() * -1);
             $bank->setEmployee($entity->getReceiverEmployee());
             $bank->setOrganization($entity->getOrganization());
             $bank->setComment($entity->getComment());
@@ -84,8 +90,8 @@ class EntityLifecycleListener
         }
 
         if ($entity instanceof Expense) {
-            $user = $entity->getUser();
-            $this->expenseRepository->updateUserExpenseTotal($user);
+            $bank = $this->bankRepository->findOneBy(['reference' => $entity->getReference()]);
+            $this->bankRepository->updateEmployeeTotal($bank->getEmployee());
         }
 
         if ($entity instanceof Transfer) {
@@ -104,8 +110,11 @@ class EntityLifecycleListener
         }
 
         if ($entity instanceof Expense) {
-            $user = $entity->getUser();
-            if ($user) $this->expenseRepository->updateUserExpenseTotal($user);
+            $bank = $this->bankRepository->findOneBy(['reference' => $entity->getReference()]);
+            if ($bank) {
+                $this->entityManager->remove($bank);
+                $this->entityManager->flush();
+            }
         }
 
         if ($entity instanceof Transfer) {

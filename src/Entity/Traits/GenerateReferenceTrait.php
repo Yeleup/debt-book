@@ -2,6 +2,7 @@
 
 namespace App\Entity\Traits;
 
+use App\Entity\Expense;
 use App\Entity\Transfer;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,6 +30,8 @@ trait GenerateReferenceTrait
     {
         if ($this instanceof Transfer) {
             $this->reference = 'TRANSFER-' . strtoupper(uniqid());
+        } elseif ($this instanceof Expense) {
+            $this->reference = 'EXPENSE-' . strtoupper(uniqid());
         } else {
             $this->reference = strtoupper(uniqid());
         }

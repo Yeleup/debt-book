@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/employees/{employeeId}/banks',
     operations: [new GetCollection()],
     uriVariables: [
-        'organizationId' => new Link(toProperty: 'employee', fromClass: Employee::class),
+        'employeeId' => new Link(toProperty: 'employee', fromClass: Employee::class),
     ],
     normalizationContext: ['groups' => ['employee.read']],
 )]

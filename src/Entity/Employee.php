@@ -102,11 +102,18 @@ class Employee
     #[Groups(['user.read', 'user.me', 'user_organization.read'])]
     private ?float $total = null;
 
+    /**
+     * @var Collection<int, Expense>
+     */
+    #[ORM\OneToMany(targetEntity: Expense::class, mappedBy: 'employee')]
+    private Collection $expenses;
+
     public function __construct()
     {
         $this->markets = new ArrayCollection();
         $this->transfers = new ArrayCollection();
         $this->banks = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -254,6 +261,36 @@ class Employee
     public function setTotal(?float $total): static
     {
         $this->total = $total;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Expense>
+     */
+    public function getExpenses(): Collection
+    {
+        return $this->expenses;
+    }
+
+    public function addExpense(Expense $expense): static
+    {
+        if (!$this->expenses->contains($expense)) {
+            $this->expenses->add($expense);
+            $expense->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExpense(Expense $expense): static
+    {
+        if ($this->expenses->removeElement($expense)) {
+            // set the owning side to null (unless already changed)
+            if ($expense->getEmployee() === $this) {
+                $expense->setEmployee(null);
+            }
+        }
 
         return $this;
     }

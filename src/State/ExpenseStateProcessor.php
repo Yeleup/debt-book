@@ -4,9 +4,12 @@ namespace App\State;
 
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
+use App\Entity\Employee;
 use App\Entity\Expense;
 use App\Entity\User;
+use App\Repository\EmployeeRepository;
 use App\Repository\ExpenseRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -17,7 +20,8 @@ class ExpenseStateProcessor implements ProcessorInterface
         protected ProcessorInterface $persistProcessor,
         protected ProcessorInterface $removeProcessor,
         protected Security $security,
-        protected ExpenseRepository $expenseRepository
+        protected ExpenseRepository $expenseRepository,
+        protected EmployeeRepository $employeeRepository,
     )
     {
     }
@@ -32,13 +36,13 @@ class ExpenseStateProcessor implements ProcessorInterface
             }
 
             $data->setUser($currentUser);
-            $data = $this->expenseRepository->plusOrMinusDependingType($data, $currentUser);
-            if ($data->getAssociatedUser()) {
-                $newExpense = clone $data;
-                $newExpense->setUser($data->getAssociatedUser());
-                $newExpense->setAssociatedUser($this->security->getUser());
-                $newExpense = $this->expenseRepository->plusOrMinusDependingType($newExpense, $currentUser);
-                $this->persistProcessor->process($newExpense, $operation, $uriVariables, $context);
+
+            if ($operation instanceof Post) {
+                /** @var Employee $employee */
+                $employee = $this->employeeRepository->findOneBy(['user' => $this->security->getUser(), 'organization' => $data->getOrganization()]);
+                if ($employee) {
+                    $data->setEmployee($employee);
+                }
             }
         }
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);

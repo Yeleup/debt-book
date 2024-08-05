@@ -23,41 +23,6 @@ class ExpenseRepository extends ServiceEntityRepository
         parent::__construct($registry, Expense::class);
     }
 
-    public function plusOrMinusDependingType(Expense $expense, User $currentUser): Expense
-    {
-        if ($expense->getExpenseType()) {
-            $amount = (float) abs($expense->getAmount());
-            if (!$expense->getExpenseType()->isAddAmountToEmployee()) {
-                $amount = -1 * $amount;
-            }
-
-            if ($expense->getAssociatedUser()) {
-                if ($expense->getUser() === $currentUser) {
-                    $amount = -1 * $amount;
-                }
-            }
-
-            $expense->setAmount($amount);
-        }
-
-        return $expense;
-    }
-
-    public function updateUserExpenseTotal(User $user): void
-    {
-        $entityManager = $this->getEntityManager();
-        $totalExpenses = $this->createQueryBuilder('e')
-            ->select('SUM(e.amount) as total')
-            ->where('e.user = :user')
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $user->setExpenseTotal($totalExpenses);
-        $entityManager->persist($user);
-        $entityManager->flush();
-    }
-
     public function sumByExpenseTypeAndDateRange(ExpenseType $expenseType, ?string $startDate, ?string $endDate): ?float
     {
         $qb = $this->createQueryBuilder('e')
