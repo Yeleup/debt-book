@@ -77,7 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Id]
     #[GeneratedValue]
     #[Column(type: 'integer')]
-    #[Groups(['user.read', 'expense.read', 'user.expense.read', 'user.me', 'user_organization.read'])]
+    #[Groups(['user.read', 'user.me', 'user_organization.read'])]
     private ?int $id = null;
 
     #[Column(type: 'string', length: 180, unique: true, nullable: true)]
@@ -93,19 +93,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[Column(name: 'full_name', type: 'string', length: 180, nullable: true)]
-    #[Groups(['transaction.read', 'expense.read', 'user.expense.read', 'user.read', 'user.write', 'user.me', 'user_organization.read'])]
+    #[Groups(['transaction.read', 'user.read', 'user.write', 'user.me', 'user_organization.read'])]
     private ?string $fullName = null;
-
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Expense::class, cascade: ['remove'])]
-    #[Link(toProperty: 'user')]
-    private Collection $expenses;
-
-    #[ORM\OneToMany(mappedBy: 'associatedUser', targetEntity: Expense::class)]
-    private Collection $associatedExpenses;
-
-    #[ORM\Column(nullable: true)]
-    #[Groups(['user.read', 'user.me', 'user_organization.read'])]
-    private ?float $expenseTotal = null;
 
     /**
      * @var Collection<int, Employee>
@@ -120,8 +109,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->expenses = new ArrayCollection();
-        $this->associatedExpenses = new ArrayCollection();
         $this->employees = new ArrayCollection();
     }
 
@@ -228,53 +215,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->fullName = $fullName;
 
         return $this;
-    }
-
-    /**
-     * @return Collection|Expense[]
-     */
-    public function getExpenses(): Collection
-    {
-        return $this->expenses;
-    }
-
-    public function addExpense(Expense $expense): self
-    {
-        if (!$this->expenses->contains($expense)) {
-            $this->expenses[] = $expense;
-            $expense->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExpense(Expense $expense): self
-    {
-        if ($this->expenses->removeElement($expense)) {
-            // set the owning side to null (unless already changed)
-            if ($expense->getUser() === $this) {
-                $expense->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getExpenseTotal(): ?float
-    {
-        return $this->expenseTotal;
-    }
-
-    public function setExpenseTotal(?float $expenseTotal): static
-    {
-        $this->expenseTotal = $expenseTotal;
-
-        return $this;
-    }
-
-    public function getAssociatedExpenses(): Collection
-    {
-        return $this->associatedExpenses;
     }
 
     /**

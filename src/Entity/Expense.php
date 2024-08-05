@@ -78,11 +78,6 @@ class Expense
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?float $amount = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'expenses')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(groups: ['expense.read', 'user.expense.read'])]
-    private ?User $user = null;
-
     #[ORM\ManyToOne(inversedBy: 'expenses')]
     private ?Employee $employee = null;
 
@@ -94,10 +89,6 @@ class Expense
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
     private ?ExpenseType $expenseType = null;
-
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'associatedExpenses')]
-    #[Groups(groups: ['expense.read', 'expense.write', 'user.expense.read'])]
-    private ?User $associatedUser = null;
 
     #[ORM\ManyToOne]
     private ?Organization $organization = null;
@@ -115,18 +106,6 @@ class Expense
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
 
         return $this;
     }
@@ -151,18 +130,6 @@ class Expense
     public function setExpenseType(?ExpenseType $expenseType): static
     {
         $this->expenseType = $expenseType;
-
-        return $this;
-    }
-
-    public function getAssociatedUser(): ?User
-    {
-        return $this->associatedUser;
-    }
-
-    public function setAssociatedUser(?User $user): self
-    {
-        $this->associatedUser = $user;
 
         return $this;
     }
