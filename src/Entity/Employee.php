@@ -19,16 +19,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use App\Validator\Employee\UniqueEmployee;
 
 #[ApiResource(
-    shortName: 'Apply',
-    operations: [
-        new Post(),
-        new Delete()
-    ],
-    normalizationContext: ['groups' => ['user_organization.read']],
-    denormalizationContext: ['groups' => ['user_organization.write']],
-    processor: EmployeeStateProcessor::class
-)]
-#[ApiResource(
     uriTemplate: '/organizations/{organizationId}/employees',
     shortName: 'Employee',
     operations: [new GetCollection()],
@@ -43,8 +33,13 @@ use App\Validator\Employee\UniqueEmployee;
     shortName: 'Employee',
     operations: [
         new Get(),
-        new Patch()
+        new Post(),
+        new Patch(),
+        new Delete(),
     ],
+    normalizationContext: ['groups' => ['user_organization.read']],
+    denormalizationContext: ['groups' => ['user_organization.write']],
+    processor: EmployeeStateProcessor::class
 )]
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 #[ORM\UniqueConstraint(name: 'user_organization_unique', fields: ['user', 'organization'])]
